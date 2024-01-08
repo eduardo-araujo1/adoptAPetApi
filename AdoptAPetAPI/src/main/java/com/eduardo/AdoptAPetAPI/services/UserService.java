@@ -3,6 +3,7 @@ package com.eduardo.AdoptAPetAPI.services;
 import com.eduardo.AdoptAPetAPI.converter.UserConverter;
 import com.eduardo.AdoptAPetAPI.dto.UserDTO;
 import com.eduardo.AdoptAPetAPI.entities.User;
+import com.eduardo.AdoptAPetAPI.exceptions.EmailNotFoundException;
 import com.eduardo.AdoptAPetAPI.exceptions.UserAlreadyRegisteredException;
 import com.eduardo.AdoptAPetAPI.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,12 @@ public class UserService {
         User userToSave = converter.toEntity(userDTO);
         User savedUser = userRepository.save(userToSave);
         return converter.toDTO(savedUser);
+    }
+
+    public UserDTO findByEmail(String email){
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new EmailNotFoundException(String.format("O email não pode ser encontrado.", email)));
+        return converter.toDTO(user);
     }
 
     private void verifyIfIsAlreadyRegistered(String email){
