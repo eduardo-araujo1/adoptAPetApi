@@ -31,7 +31,7 @@ public class AnimalConverterTest {
                 .size(AnimalSize.LARGE)
                 .shelter(ShelterDTO.builder()
                         .name("Shelter test")
-                        .address("Rua paraiba 123")
+                        .address("Rua paraiba")
                         .number("333")
                         .build())
                 .build();
@@ -52,7 +52,7 @@ public class AnimalConverterTest {
                 .size(AnimalSize.LARGE)
                 .shelter(Shelter.builder()
                         .name("Shelter test")
-                        .address("Rua paraiba 123")
+                        .address("Rua paraiba")
                         .number("333")
                         .build())
                 .build();
@@ -67,7 +67,7 @@ public class AnimalConverterTest {
     public void testShelterToEntity(){
         ShelterDTO shelterDTO = ShelterDTO.builder()
                 .name("Shelter test")
-                .address("Rua paraiba 123")
+                .address("Rua paraiba")
                 .number("333")
                 .build();
 
@@ -82,7 +82,7 @@ public class AnimalConverterTest {
     public void testShelterToDTO(){
         Shelter shelter = Shelter.builder()
                 .name("Shelter test")
-                .address("Rua paraiba 123")
+                .address("Rua paraiba")
                 .number("333")
                 .build();
 
