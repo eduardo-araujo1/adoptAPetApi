@@ -5,6 +5,7 @@ import com.eduardo.AdoptAPetAPI.exceptions.UserAlreadyRegisteredException;
 import com.eduardo.AdoptAPetAPI.services.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +29,20 @@ public class UserController {
     }
 
     @GetMapping("/{email}")
-    public ResponseEntity<UserDTO> findByEmail(@PathVariable String email){
-       var userDto = service.findByEmail(email);
-       return ResponseEntity.ok().body(userDto);
+    public ResponseEntity<UserDTO> findByEmail(@PathVariable String email) {
+        var userDto = service.findByEmail(email);
+        return ResponseEntity.ok().body(userDto);
+    }
+
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<UserDTO>> getUsersPaginated(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        Page<UserDTO> returnUsers = service.findAll(page, size);
+        return ResponseEntity.ok().body(returnUsers);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+        service.deleteUser(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 }
