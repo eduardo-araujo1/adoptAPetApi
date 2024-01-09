@@ -52,7 +52,6 @@ public class UserService {
         if (!userRepository.existsById(id)) {
             throw new ResourceNotFoundException("Usuário não pode ser encontrado");
         }
-
         userRepository.deleteById(id);
     }
 

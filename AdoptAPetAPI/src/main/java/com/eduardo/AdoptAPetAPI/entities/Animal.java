@@ -17,12 +17,9 @@ public class Animal {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "name")
-    private String name;
+    @Column(name = "breed")
+    private String breed;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "shelter_id", referencedColumnName = "id")
-    private Shelter shelter;
 
     @Enumerated(EnumType.STRING)
     private AnimalColor color;
@@ -32,4 +29,8 @@ public class Animal {
 
     @Enumerated(EnumType.STRING)
     private AnimalType type;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "shelter_id", referencedColumnName = "id")
+    private Shelter shelter;
 }

@@ -9,7 +9,6 @@ import lombok.Getter;
 @Builder
 public class ShelterDTO {
 
-    private Long id;
     private String name;
     private String address;
     private String number;

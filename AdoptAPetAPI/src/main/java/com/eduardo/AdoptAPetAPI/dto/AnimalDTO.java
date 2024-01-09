@@ -13,9 +13,9 @@ import lombok.Getter;
 public class AnimalDTO {
 
    private Long id;
-   private String name;
-   private ShelterDTO shelter;
+   private String breed;
    private AnimalType type;
    private AnimalColor color;
    private AnimalSize size;
+   private ShelterDTO shelter;
 }
