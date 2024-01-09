@@ -31,7 +31,7 @@ public class AnimalConverter {
                 .build();
     }
 
-    public static Shelter toShelterEntity(ShelterDTO shelterDTO) {
+    public Shelter toShelterEntity(ShelterDTO shelterDTO) {
         return Shelter.builder()
                 .name(shelterDTO.getName())
                 .address(shelterDTO.getAddress())
@@ -39,7 +39,7 @@ public class AnimalConverter {
                 .build();
     }
 
-    public static ShelterDTO toShelterDTO(Shelter shelter) {
+    public ShelterDTO toShelterDTO(Shelter shelter) {
         return ShelterDTO.builder()
                 .name(shelter.getName())
                 .address(shelter.getAddress())
