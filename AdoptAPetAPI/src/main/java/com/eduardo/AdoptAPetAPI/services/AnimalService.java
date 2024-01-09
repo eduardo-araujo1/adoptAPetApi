@@ -35,6 +35,10 @@ public class AnimalService {
         return animalsPage.map(animalConverter::toDTO);
     }
 
+    public void adoptAnimal(Long id){
+        animalRepository.deleteById(id);
+    }
+
 
 
 

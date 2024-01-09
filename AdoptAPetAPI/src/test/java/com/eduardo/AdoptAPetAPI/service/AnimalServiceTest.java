@@ -15,8 +15,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -66,12 +72,57 @@ public class AnimalServiceTest {
         when(animalConverter.toDTO(animal)).thenReturn(animalDTO);
 
 
-        AnimalDTO result = animalService.registerAnimal(animalDTO);
+        AnimalDTO result = animalService.registerAnimalForAdoption(animalDTO);
 
         assertEquals(animalDTO, result);
 
         verify(animalConverter, times(1)).toEntity(animalDTO);
         verify(animalRepository, times(1)).save(animal);
         verify(animalConverter, times(1)).toDTO(animal);
+    }
+
+    @Test
+    public void testFindAll(){
+        int page = 0;
+        int size = 10;
+
+        List<Animal> animalList = Arrays.asList(
+                Animal.builder().id(1L).breed("Labrador").build(),
+                Animal.builder().id(2L).breed("Persa").build());
+
+        Page<Animal> animalPage = new PageImpl<>(animalList);
+
+        when(animalRepository.findAll(PageRequest.of(page,size))).thenReturn(animalPage);
+
+        List<AnimalDTO> animalDTOList = Arrays.asList(
+                AnimalDTO.builder().id(1L).breed("Labrador").build(),
+                AnimalDTO.builder().id(2L).breed("Persa").build());
+
+        when(animalConverter.toDTO(any(Animal.class)))
+                .thenAnswer(invocation ->{
+                    Animal animal = invocation.getArgument(0);
+                    return animalDTOList.stream()
+                            .filter(dto -> dto.getId().equals(animal.getId()))
+                            .findFirst()
+                            .orElse(null);
+                });
+
+        Page<AnimalDTO> result = animalService.findAll(page,size);
+
+        assertNotNull(result);
+        assertEquals(animalDTOList.size(), result.getContent().size());
+        assertTrue(result.getContent().containsAll(animalDTOList));
+
+        verify(animalRepository, times(1)).findAll(PageRequest.of(page,size));
+    }
+
+    @Test
+    public void testAdoptAnimal() {
+
+        Long animalId = 1L;
+
+        animalService.adoptAnimal(animalId);
+
+        verify(animalRepository).deleteById(animalId);
     }
 }

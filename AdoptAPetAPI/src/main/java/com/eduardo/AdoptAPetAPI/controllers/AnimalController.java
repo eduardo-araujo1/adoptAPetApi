@@ -31,4 +31,10 @@ public class AnimalController {
         Page<AnimalDTO> returnAll = service.findAll(page, size);
         return ResponseEntity.ok().body(returnAll);
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> adoptAnimal(@PathVariable Long id){
+        service.adoptAnimal(id);
+        return ResponseEntity.noContent().build();
+    }
 }
