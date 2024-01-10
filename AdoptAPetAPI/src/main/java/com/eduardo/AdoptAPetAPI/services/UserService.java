@@ -3,6 +3,9 @@ package com.eduardo.AdoptAPetAPI.services;
 import com.eduardo.AdoptAPetAPI.converter.UserConverter;
 import com.eduardo.AdoptAPetAPI.dto.UserDTO;
 import com.eduardo.AdoptAPetAPI.entities.User;
+import com.eduardo.AdoptAPetAPI.enums.AnimalColor;
+import com.eduardo.AdoptAPetAPI.enums.AnimalSize;
+import com.eduardo.AdoptAPetAPI.enums.AnimalType;
 import com.eduardo.AdoptAPetAPI.exceptions.EmailNotFoundException;
 import com.eduardo.AdoptAPetAPI.exceptions.ResourceNotFoundException;
 import com.eduardo.AdoptAPetAPI.exceptions.UserAlreadyRegisteredException;
@@ -61,6 +64,21 @@ public class UserService {
         if (optSavedUser.isPresent()){
             throw new UserAlreadyRegisteredException(String.format("O email %s já está registrado.",email));
         }
+    }
+
+    @Transactional
+    public UserDTO retireInterestToAdopt(Long id){
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado"));
+
+        user.setLookingForAnimal(false);
+        user.setColor(AnimalColor.NONE);
+        user.setSize(AnimalSize.NONE);
+        user.setType(AnimalType.NONE);
+
+        User updateUser = userRepository.save(user);
+        return converter.toDTO(updateUser);
+
     }
 
 

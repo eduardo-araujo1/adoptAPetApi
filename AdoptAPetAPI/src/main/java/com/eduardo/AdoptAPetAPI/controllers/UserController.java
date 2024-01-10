@@ -76,4 +76,16 @@ public class UserController {
         service.deleteUser(id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+    @Operation(summary = "Retirar o interesse em adotar um animal", method = "PUT")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuario atualizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Usuário não foi encontrado")
+    })
+
+    @PutMapping("/no-adopt/{id}")
+    public ResponseEntity<UserDTO> retireInterestToAdopt(@PathVariable Long id){
+        UserDTO updateUser = service.retireInterestToAdopt(id);
+        return ResponseEntity.ok().body(updateUser);
+    }
 }

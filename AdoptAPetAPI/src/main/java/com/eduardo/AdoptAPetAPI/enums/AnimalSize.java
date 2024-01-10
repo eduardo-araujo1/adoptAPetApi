@@ -4,5 +4,6 @@ public enum AnimalSize {
 
     LARGE,
     MEDIUM,
-    SMALL
+    SMALL,
+    NONE
 }

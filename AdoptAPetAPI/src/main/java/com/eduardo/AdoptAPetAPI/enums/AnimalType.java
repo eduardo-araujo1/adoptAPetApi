@@ -5,5 +5,6 @@ public enum AnimalType {
     DOG,
     CAT,
     BIRD,
-    HAMSTER
+    HAMSTER,
+    NONE
 }

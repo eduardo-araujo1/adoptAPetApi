@@ -4,5 +4,6 @@ public enum AnimalColor {
     WHITE,
     BROWN,
     BLACK,
-    CARAMEL
+    CARAMEL,
+    NONE
 }
