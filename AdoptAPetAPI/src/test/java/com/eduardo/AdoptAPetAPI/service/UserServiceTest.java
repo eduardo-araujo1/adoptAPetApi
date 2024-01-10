@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
@@ -206,4 +207,32 @@ public class UserServiceTest {
             assertEquals("Usuário não pode ser encontrado", e.getMessage());
         }
     }
+
+    @Test
+    public void retireInterestToAdopt_ShouldUpdateUserAndReturnDTO() {
+        Long userId = 1L;
+        User existingUser = new User(userId, "Test User", "test@email.com", true, AnimalColor.BLACK, AnimalSize.MEDIUM, AnimalType.DOG);
+        UserDTO expectedDTO = new UserDTO(userId, "Test User", "test@email.com", false, AnimalColor.NONE, AnimalSize.NONE, AnimalType.NONE);
+
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.of(existingUser));
+        when(userRepository.save(any(User.class))).thenReturn(existingUser);
+        when(userConverter.toDTO(existingUser)).thenReturn(expectedDTO);
+
+        UserDTO updatedDTO = userService.retireInterestToAdopt(userId);
+
+        assertThat(updatedDTO).isEqualTo(expectedDTO);
+        assertThat(existingUser.isLookingForAnimal()).isFalse();
+        assertThat(existingUser.getColor()).isEqualTo(AnimalColor.NONE);
+        assertThat(existingUser.getSize()).isEqualTo(AnimalSize.NONE);
+        assertThat(existingUser.getType()).isEqualTo(AnimalType.NONE);
+    }
+
+    @Test
+    public void retireInterestToAdopt_ShouldThrowResourceNotFoundExceptionWhenUserNotFound() {
+        Long userId = 2L;
+        when(userRepository.findById(userId)).thenReturn(java.util.Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> userService.retireInterestToAdopt(userId));
+    }
+
 }
