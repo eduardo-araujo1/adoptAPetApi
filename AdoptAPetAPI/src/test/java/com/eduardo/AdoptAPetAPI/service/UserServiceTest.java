@@ -43,6 +43,7 @@ public class UserServiceTest {
 
     @Test
     public void testRegisterUser() {
+        // Arrange
         UserDTO userDTO = UserDTO.builder()
                 .id(1L)
                 .name("Name")
@@ -53,13 +54,17 @@ public class UserServiceTest {
                 .type(AnimalType.DOG)
                 .build();
 
-        when(userRepository.findByEmail("name@test.com")).thenReturn(Optional.empty());
-        when(userRepository.save(any(User.class))).thenReturn(User.builder().id(1L).build());
-        when(userConverter.toEntity(userDTO)).thenReturn(User.builder().id(1L).build());
-        when(userConverter.toDTO(any(User.class))).thenReturn(userDTO);
+        User userEntity = User.builder().id(1L).build();
 
+        when(userRepository.findByEmail("name@test.com")).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenReturn(userEntity);
+        when(userConverter.toEntity(userDTO)).thenReturn(userEntity);
+        when(userConverter.toDTO(userEntity)).thenReturn(userDTO);
+
+        // Act
         UserDTO result = userService.registerUser(userDTO);
 
+        // Assert
         assertNotNull(result);
         assertEquals(1L, result.getId());
         assertEquals("name@test.com", result.getEmail());
@@ -67,11 +72,12 @@ public class UserServiceTest {
         verify(userRepository, times(1)).findByEmail("name@test.com");
         verify(userRepository, times(1)).save(any(User.class));
         verify(userConverter, times(1)).toEntity(userDTO);
-        verify(userConverter, times(1)).toDTO(any(User.class));
+        verify(userConverter, times(1)).toDTO(userEntity);
     }
 
     @Test
     public void testRegisterUserAlreadyRegistered() {
+        // Arrange
         UserDTO userDTO = UserDTO.builder()
                 .id(1L)
                 .name("Name")
@@ -82,10 +88,13 @@ public class UserServiceTest {
                 .type(AnimalType.DOG)
                 .build();
 
-        when(userRepository.findByEmail("name@test.com")).thenReturn(Optional.of(User.builder().id(1L).build()));
+        when(userRepository.findByEmail("name@test.com"))
+                .thenReturn(Optional.of(User.builder().id(1L).build()));
 
+        // Act & Assert
         assertThrows(UserAlreadyRegisteredException.class, () -> userService.registerUser(userDTO));
 
+        // Verify
         verify(userRepository, times(1)).findByEmail("name@test.com");
         verify(userRepository, never()).save(any(User.class));
         verify(userConverter, never()).toEntity(userDTO);
@@ -94,6 +103,7 @@ public class UserServiceTest {
 
     @Test
     public void testFindByEmail_UserFound() {
+        // Arrange
         String emailToFind = "user@example.com";
         User existingUser = User.builder()
                 .id(1L)
@@ -119,33 +129,35 @@ public class UserServiceTest {
 
         when(userConverter.toDTO(existingUser)).thenReturn(expectedUserDTO);
 
+        // Act
         UserDTO result = userService.findByEmail(emailToFind);
 
-
+        // Assert
         assertNotNull(result);
         assertEquals(expectedUserDTO, result);
 
-
+        // Verify
         verify(userRepository, times(1)).findByEmail(emailToFind);
         verify(userConverter, times(1)).toDTO(existingUser);
     }
 
     @Test
     public void testFindByEmail_UserNotFound() {
+        // Arrange
         String emailToFind = "noexist@example.com";
-
         when(userRepository.findByEmail(emailToFind)).thenReturn(Optional.empty());
 
-
+        // Act and Assert
         assertThrows(EmailNotFoundException.class, () -> userService.findByEmail(emailToFind));
 
-
+        // Verify
         verify(userRepository, times(1)).findByEmail(emailToFind);
         verify(userConverter, never()).toDTO(any());
     }
 
     @Test
     public void testFindAll() {
+        // Arrange
         int page = 0;
         int size = 10;
 
@@ -161,7 +173,6 @@ public class UserServiceTest {
                 UserDTO.builder().id(1L).name("User 1").email("user1@example.com").build(),
                 UserDTO.builder().id(2L).name("User 2").email("user2@example.com").build());
 
-
         when(userConverter.toDTO(any(User.class)))
                 .thenAnswer(invocation -> {
                     User user = invocation.getArgument(0);
@@ -171,41 +182,45 @@ public class UserServiceTest {
                             .orElse(null);
                 });
 
-
+        // Act
         Page<UserDTO> result = userService.findAll(page, size);
 
-
+        // Assert
         assertNotNull(result);
         assertEquals(userDTOList.size(), result.getContent().size());
         assertTrue(result.getContent().containsAll(userDTOList));
 
-
+        // Verify
         verify(userRepository, times(1)).findAll(PageRequest.of(page, size));
         verify(userConverter, times(userList.size())).toDTO(any(User.class));
     }
 
     @Test
     public void testDeleteUserById() {
+        // Arrange
         Long userId = 1L;
-
         when(userRepository.existsById(userId)).thenReturn(true);
 
+        // Act
         userService.deleteUser(userId);
 
+        // Assert and Verify
         verify(userRepository, times(1)).deleteById(userId);
+        verify(userRepository, times(1)).existsById(userId);
     }
 
     @Test
     public void testDeleteNonExistingUser() {
-        Long nonExistingUserId = 2L;
-        when(userRepository.existsById(nonExistingUserId)).thenReturn(false);
+        // Arrange
+        Long userId = 1L;
+        when(userRepository.existsById(userId)).thenReturn(false);
 
-        try {
-            userService.deleteUser(nonExistingUserId);
-            fail("Deveria ter lançado ResourceNotFoundException");
-        } catch (ResourceNotFoundException e) {
-            assertEquals("Usuário não pode ser encontrado", e.getMessage());
-        }
+        // Act and Assert
+        assertThrows(ResourceNotFoundException.class, () -> userService.deleteUser(userId));
+
+        // Verify
+        verify(userRepository, never()).deleteById(userId);
+        verify(userRepository, times(1)).existsById(userId);
     }
 
     @Test
