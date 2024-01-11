@@ -39,6 +39,7 @@ public class AnimalServiceTest {
 
     @Test
     public void testRegisterAnimal() {
+        // Arrange
         AnimalDTO animalDTO = AnimalDTO.builder()
                 .id(1L)
                 .breed("Labrador")
@@ -51,7 +52,6 @@ public class AnimalServiceTest {
                         .number("333")
                         .build())
                 .build();
-
 
         Animal animal = Animal.builder()
                 .id(1L)
@@ -66,16 +66,17 @@ public class AnimalServiceTest {
                         .build())
                 .build();
 
-
         when(animalConverter.toEntity(animalDTO)).thenReturn(animal);
         when(animalRepository.save(animal)).thenReturn(animal);
         when(animalConverter.toDTO(animal)).thenReturn(animalDTO);
 
-
+        // Act
         AnimalDTO result = animalService.registerAnimalForAdoption(animalDTO);
 
+        // Assert
         assertEquals(animalDTO, result);
 
+        // Verify
         verify(animalConverter, times(1)).toEntity(animalDTO);
         verify(animalRepository, times(1)).save(animal);
         verify(animalConverter, times(1)).toDTO(animal);
@@ -83,6 +84,7 @@ public class AnimalServiceTest {
 
     @Test
     public void testFindAll(){
+        // Arrange
         int page = 0;
         int size = 10;
 
@@ -92,14 +94,14 @@ public class AnimalServiceTest {
 
         Page<Animal> animalPage = new PageImpl<>(animalList);
 
-        when(animalRepository.findAll(PageRequest.of(page,size))).thenReturn(animalPage);
+        when(animalRepository.findAll(PageRequest.of(page, size))).thenReturn(animalPage);
 
         List<AnimalDTO> animalDTOList = Arrays.asList(
                 AnimalDTO.builder().id(1L).breed("Labrador").build(),
                 AnimalDTO.builder().id(2L).breed("Persa").build());
 
         when(animalConverter.toDTO(any(Animal.class)))
-                .thenAnswer(invocation ->{
+                .thenAnswer(invocation -> {
                     Animal animal = invocation.getArgument(0);
                     return animalDTOList.stream()
                             .filter(dto -> dto.getId().equals(animal.getId()))
@@ -107,18 +109,20 @@ public class AnimalServiceTest {
                             .orElse(null);
                 });
 
-        Page<AnimalDTO> result = animalService.findAll(page,size);
+        // Act
+        Page<AnimalDTO> result = animalService.findAll(page, size);
 
+        // Assert
         assertNotNull(result);
         assertEquals(animalDTOList.size(), result.getContent().size());
         assertTrue(result.getContent().containsAll(animalDTOList));
 
-        verify(animalRepository, times(1)).findAll(PageRequest.of(page,size));
+        // Verify
+        verify(animalRepository, times(1)).findAll(PageRequest.of(page, size));
     }
 
     @Test
     public void testAdoptAnimal() {
-
         Long animalId = 1L;
 
         animalService.adoptAnimal(animalId);
