@@ -1,39 +1,30 @@
 package com.eduardo.AdoptAPetAPI.controller;
 
 import com.eduardo.AdoptAPetAPI.controllers.UserController;
-import com.eduardo.AdoptAPetAPI.converter.UserConverter;
 import com.eduardo.AdoptAPetAPI.dto.UserDTO;
-import com.eduardo.AdoptAPetAPI.entities.User;
 import com.eduardo.AdoptAPetAPI.enums.AnimalColor;
 import com.eduardo.AdoptAPetAPI.enums.AnimalSize;
 import com.eduardo.AdoptAPetAPI.enums.AnimalType;
 import com.eduardo.AdoptAPetAPI.exceptions.EmailNotFoundException;
+import com.eduardo.AdoptAPetAPI.exceptions.ResourceNotFoundException;
 import com.eduardo.AdoptAPetAPI.exceptions.UserAlreadyRegisteredException;
-import com.eduardo.AdoptAPetAPI.repositories.UserRepository;
 import com.eduardo.AdoptAPetAPI.services.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.json.AutoConfigureJsonTesters;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -129,6 +120,49 @@ public class UserControllerTest {
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.content.length()").value(2));
     }
+
+    @Test
+    public void testDeleteUser_Success() throws Exception {
+        Long userId = 1L;
+
+        doNothing().when(service).deleteUser(userId);
+
+        mockMvc.perform(delete("/users/{id}", userId))
+                .andExpect(status().isNoContent());
+
+        verify(service, times(1)).deleteUser(userId);
+    }
+
+    @Test
+    public void testRetireInterestToAdopt_Success() throws Exception {
+        UserDTO userDTO = new UserDTO(1L, "Joao", "joao@test.com", true, AnimalColor.CARAMEL,
+                AnimalSize.SMALL, AnimalType.DOG);
+
+        when(service.retireInterestToAdopt(userDTO.getId())).thenReturn(userDTO);
+
+        mockMvc.perform(put("/users/no-adopt/{id}", userDTO.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(userDTO.getId()))
+                .andExpect(jsonPath("$.name").value(userDTO.getName()))
+                .andExpect(jsonPath("$.email").value(userDTO.getEmail()));
+
+
+        verify(service, times(1)).retireInterestToAdopt(userDTO.getId());
+    }
+
+    @Test
+    public void testRetireInterestToAdopt_UserNotFound() throws Exception {
+        Long userId = 1L;
+
+        when(service.retireInterestToAdopt(userId)).thenThrow(new ResourceNotFoundException("Usuário não encontrado"));
+
+        mockMvc.perform(put("/users/no-adopt/{id}", userId))
+                .andExpect(status().isNotFound());
+
+
+        verify(service, times(1)).retireInterestToAdopt(userId);
+    }
+
 
     private String asJsonString(final Object obj) {
         try {
