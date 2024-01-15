@@ -112,7 +112,7 @@ public class UserControllerTest {
         );
 
 
-        when(service.findAll(0, 10)).thenReturn(new PageImpl<>(usersDTO, PageRequest.of(0, 10), 2));
+        when(service.findAll(0, 10)).thenReturn(new PageImpl<>(usersDTO, PageRequest.of(0, 10), usersDTO.size()));
 
 
         mockMvc.perform(get("/users/paginated?page=0&size=10"))
