@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -34,7 +35,7 @@ public class AnimalService {
         Page<Animal> animalsPage = animalRepository.findAll(pageRequest);
         return animalsPage.map(animalConverter::toDTO);
     }
-
+    @Transactional(propagation = Propagation.SUPPORTS)
     public void adoptAnimal(Long id){
         animalRepository.deleteById(id);
     }

@@ -39,7 +39,6 @@ public class AnimalServiceTest {
 
     @Test
     public void testRegisterAnimal() {
-        // Arrange
         AnimalDTO animalDTO = AnimalDTO.builder()
                 .id(1L)
                 .breed("Labrador")
@@ -70,13 +69,11 @@ public class AnimalServiceTest {
         when(animalRepository.save(animal)).thenReturn(animal);
         when(animalConverter.toDTO(animal)).thenReturn(animalDTO);
 
-        // Act
-        AnimalDTO result = animalService.registerAnimalForAdoption(animalDTO);
 
-        // Assert
+        AnimalDTO result = animalService.registerAnimalForAdoption(animalDTO);
+        
         assertEquals(animalDTO, result);
 
-        // Verify
         verify(animalConverter, times(1)).toEntity(animalDTO);
         verify(animalRepository, times(1)).save(animal);
         verify(animalConverter, times(1)).toDTO(animal);
